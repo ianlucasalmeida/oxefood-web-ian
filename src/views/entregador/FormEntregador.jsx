@@ -1,8 +1,8 @@
 import InputMask from 'comigo-tech-react-input-mask';
 import React from "react";
-import { Button, Container, Divider, Form, FormGroup, Icon, TextArea } from 'semantic-ui-react';
+import { Button, Container, Divider, Form, Icon } from 'semantic-ui-react';
 
-export default function FormProduto () {
+export default function FormCliente () {
 
     return (
 
@@ -12,7 +12,7 @@ export default function FormProduto () {
 
                 <Container textAlign='justified' >
 
-                    <h2> <span style={{color: 'darkgray'}}> Produto &nbsp;<Icon name='angle double right' size="small" /> </span> Cadastro </h2>
+                    <h2> <span style={{color: 'darkgray'}}> Entregador &nbsp;<Icon name='angle double right' size="small" /> </span> Cadastro </h2>
 
                     <Divider />
 
@@ -20,69 +20,64 @@ export default function FormProduto () {
 
                         <Form>
 
-                            <Form.Group>
+                            <Form.Group widths='equal'>
 
                                 <Form.Input
                                     required
                                     fluid
-                                  
-                                    label='Título'
+                                    label='Nome'
                                     
                                 />
 
                                 <Form.Input
                                     required
                                     fluid
-                                    label='Código do Produto'>
+                                    label='CPF'>
                                     <InputMask
                                         required
-                                        
-                                    /> 
-                                </Form.Input>
+                                        mask="999.999.999-99"
+                                    />
+
+                                <Form.Input
+                                    required
+                                    fluid
+                                    label='RG'/>
+                                  
+                                    
+
+                              </Form.Input>
 
                             </Form.Group>
-
-                            <FormGroup widths='equal'>
-                              <Form.Input
-                                  fluid
-                                  label='Descrição'
-                                  maxLength="255"
-                                >
-                                  <TextArea maxLength="255" placeholder='Informe a descrição do produto' />
-                              </Form.Input>
-                            </FormGroup>
                             
                             <Form.Group>
 
                                 <Form.Input
                                     fluid
-                                    label='Valor Unitário'
+                                    label='Fone Celular'
                                     width={6}>
                                     <InputMask 
-                                        
-                                        placeholder="Ex: 12,50"
+                                        mask="(99) 9999.9999"
                                     /> 
                                 </Form.Input>
 
                                 <Form.Input
                                     fluid
-                                    label='Tempo de Entrega Mínimo em Minutos'
+                                    label='Fone Fixo'
                                     width={6}>
                                     <InputMask 
-                                        
-                                        placeholder="30"
+                                        mask="(99) 9999.9999"
                                     /> 
                                 </Form.Input>
 
                                 <Form.Input
                                     fluid
-                                    label='Tempo de Entrega Máximo em Minutos'
+                                    label='Data Nascimento'
                                     width={6}
                                 >
                                     <InputMask 
-                                         
-                                        
-                                        placeholder="40"
+                                        mask="99/99/9999" 
+                                        maskChar={null}
+                                        placeholder="Ex: 20/03/1985"
                                     /> 
                                 </Form.Input>
 
@@ -101,7 +96,7 @@ export default function FormProduto () {
                                 color='orange'
                             >
                                 <Icon name='reply' />
-                                Listar
+                                Voltar
                             </Button>
                                 
                             <Button
