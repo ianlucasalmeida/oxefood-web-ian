@@ -1,7 +1,9 @@
 import axios from "axios";
 import InputMask from 'comigo-tech-react-input-mask';
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button, Container, Divider, Form, Icon, TextArea } from 'semantic-ui-react';
+import MenuSistema from "../../MenuSistema";
 
 export default function FormProduto () {
 
@@ -38,6 +40,7 @@ export default function FormProduto () {
 
     return (
         <div>
+            <MenuSistema tela={'produto'} />
             <div style={{marginTop: '3%'}}>
                 <Container textAlign='justified' >
                     <h2> <span style={{color: 'darkgray'}}> Produto &nbsp;<Icon name='angle double right' size="small" /> </span> Cadastro </h2>
@@ -104,6 +107,7 @@ export default function FormProduto () {
                         </Form>
                         
                         <div style={{marginTop: '4%'}}>
+                        <Link to={'/list-produto'}>
                             <Button
                                 type="button"
                                 inverted circular icon labelPosition='left' color='orange'
@@ -111,7 +115,7 @@ export default function FormProduto () {
                                 <Icon name='reply' />
                                 Listar
                             </Button>
-                                
+                        </Link>
                             {/* Vinculando o clique do botão à nossa função de salvar */}
                             <Button
                                 inverted circular icon labelPosition='left' color='blue' floated='right'

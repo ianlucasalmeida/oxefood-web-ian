@@ -1,7 +1,11 @@
 import axios from "axios";
 import InputMask from 'comigo-tech-react-input-mask';
 import { useState } from "react";
+import { Link } from "react-router-dom"; // <-- Importando o Link para navegação
 import { Button, Container, Divider, Form, Icon } from 'semantic-ui-react';
+import MenuSistema from "../../MenuSistema";
+
+
 const ufOptions = [
     { key: 'ac', text: 'Acre', value: 'AC' },
     { key: 'al', text: 'Alagoas', value: 'AL' },
@@ -92,6 +96,7 @@ export default function FormEntregador() { // <-- Nome ajustado
 
     return (
         <div>
+            <MenuSistema tela={'entregador'} />
             <div style={{ marginTop: '3%' }}>
                 <Container textAlign='justified'>
                     <h2> 
@@ -235,6 +240,7 @@ export default function FormEntregador() { // <-- Nome ajustado
                         </Form>
                         
                         <div style={{ marginTop: '4%' }}>
+                        <Link to={'/list-produto'}>     
                             <Button
                                 type="button"
                                 inverted circular icon labelPosition='left' color='orange'
@@ -242,6 +248,7 @@ export default function FormEntregador() { // <-- Nome ajustado
                                 <Icon name='reply' />
                                 Voltar
                             </Button>
+                        </Link>
                                 
                             <Button
                                 inverted circular icon labelPosition='left' color='blue' floated='right'
