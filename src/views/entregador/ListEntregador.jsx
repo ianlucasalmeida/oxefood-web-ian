@@ -1,107 +1,161 @@
 import axios from 'axios';
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Button, Container, Divider, Icon, Table } from 'semantic-ui-react';
+// IMPORTANTE: Adicionados Header e Modal
+import { Button, Container, Divider, Header, Icon, Modal, Table } from 'semantic-ui-react';
 import MenuSistema from '../../MenuSistema';
 
 export default function ListEntregador () {
 
-   const [lista, setLista] = useState([]);
+    const [lista, setLista] = useState([]);
 
-   useEffect(() => {
-       carregarLista();
-   }, [])
+    // NOVOS ESTADOS: Para controlar o modal de exclusão
+    const [openModal, setOpenModal] = useState(false);
+    const [idRemover, setIdRemover] = useState();
 
-   function carregarLista() {
+    useEffect(() => {
+        carregarLista();
+    }, [])
 
-       axios.get("http://localhost:8080/api/entregador")
-       .then((response) => {
-           setLista(response.data)
-       })
-   }
-function formatarData(dataParam) {
+    function carregarLista() {
+        axios.get("http://localhost:8080/api/entregador")
+        .then((response) => {
+            setLista(response.data)
+        })
+    }
 
-       if (dataParam === null || dataParam === '' || dataParam === undefined) {
-           return ''
-       }
+    function formatarData(dataParam) {
+        if (dataParam === null || dataParam === '' || dataParam === undefined) {
+            return ''
+        }
+        let arrayData = dataParam.split('-');
+        return arrayData[2] + '/' + arrayData[1] + '/' + arrayData[0];
+    }
 
-       let arrayData = dataParam.split('-');
-       return arrayData[2] + '/' + arrayData[1] + '/' + arrayData[0];
-   }
-return(
-       <div>
-           <MenuSistema tela={'entregador'} />
-           <div style={{marginTop: '3%'}}>
+    // NOVA FUNÇÃO: Abre o modal e guarda o ID do entregador que será removido
+    function confirmaRemover(id) {
+        setOpenModal(true);
+        setIdRemover(id);
+    }
 
-               <Container textAlign='justified' >
+    // NOVA FUNÇÃO: Faz a requisição DELETE para a API do entregador
+    async function remover() {
+        await axios.delete('http://localhost:8080/api/entregador/' + idRemover)
+        .then((response) => {
+            console.log('Entregador removido com sucesso.')
+  
+            // Após remover, recarrega a lista para atualizar a tela
+            axios.get("http://localhost:8080/api/entregador")
+            .then((response) => {
+                setLista(response.data)
+            })
+        })
+        .catch((error) => {
+            console.log('Erro ao remover um entregador.')
+        })
+        setOpenModal(false); // Fecha o modal após a tentativa
+    }
 
-                   <h2> Entregador </h2>
-                   <Divider />
+    return(
+        <div>
+            <MenuSistema tela={'entregador'} />
+            <div style={{marginTop: '3%'}}>
 
-                   <div style={{marginTop: '4%'}}>
-                       <Button
-                           label='Novo'
-                           circular
-                           color='orange'
-                           icon='clipboard outline'
-                           floated='right'
-                           as={Link}
-                           to='/form-entregador'
-                       />
- <br/><br/><br/>
+                <Container textAlign='justified' >
+
+                    <h2> Entregador </h2>
+                    <Divider />
+
+                    <div style={{marginTop: '4%'}}>
+                        <Button
+                            label='Novo'
+                            circular
+                            color='orange'
+                            icon='clipboard outline'
+                            floated='right'
+                            as={Link}
+                            to='/form-entregador'
+                        />
+                        <br/><br/><br/>
                   
-                       <Table color='orange' sortable celled>
+                        <Table color='orange' sortable celled>
 
-                           <Table.Header>
-                               <Table.Row>
-                                   <Table.HeaderCell>Nome</Table.HeaderCell>
-                                   <Table.HeaderCell>CPF</Table.HeaderCell>
-                                   <Table.HeaderCell>Data de Nascimento</Table.HeaderCell>
-                                   <Table.HeaderCell>Fone Celular</Table.HeaderCell>
-                                   <Table.HeaderCell>Fone Fixo</Table.HeaderCell>
-                                   <Table.HeaderCell textAlign='center'>Ações</Table.HeaderCell>
-                               </Table.Row>
-                           </Table.Header>
+                            <Table.Header>
+                                <Table.Row>
+                                    <Table.HeaderCell>Nome</Table.HeaderCell>
+                                    <Table.HeaderCell>CPF</Table.HeaderCell>
+                                    <Table.HeaderCell>Data de Nascimento</Table.HeaderCell>
+                                    <Table.HeaderCell>Fone Celular</Table.HeaderCell>
+                                    <Table.HeaderCell>Fone Fixo</Table.HeaderCell>
+                                    <Table.HeaderCell textAlign='center'>Ações</Table.HeaderCell>
+                                </Table.Row>
+                            </Table.Header>
                       
-                           <Table.Body>
+                            <Table.Body>
 
-                               { lista.map(entregador => (
+                                { lista.map(entregador => (
 
-                                   <Table.Row key={entregador.id}>
-                                       <Table.Cell>{entregador.nome}</Table.Cell>
-                                       <Table.Cell>{entregador.cpf}</Table.Cell>
-                                       <Table.Cell>{formatarData(entregador.dataNascimento)}</Table.Cell>
-                                       <Table.Cell>{entregador.foneCelular}</Table.Cell>
-                                       <Table.Cell>{entregador.foneFixo}</Table.Cell>
-                                       <Table.Cell textAlign='center'>
+                                    <Table.Row key={entregador.id}>
+                                        <Table.Cell>{entregador.nome}</Table.Cell>
+                                        <Table.Cell>{entregador.cpf}</Table.Cell>
+                                        <Table.Cell>{formatarData(entregador.dataNascimento)}</Table.Cell>
+                                        <Table.Cell>{entregador.foneCelular}</Table.Cell>
+                                        <Table.Cell>{entregador.foneFixo}</Table.Cell>
+                                        <Table.Cell textAlign='center'>
 
-                                           <Button
-                                               inverted
-                                               circular
-                                               color='green'
-                                               title='Clique aqui para editar os dados deste entregador'
-                                               icon>
-                                                    <Icon name='edit' />
-                                           </Button> &nbsp;
-       <Button
-                                               inverted
-                                               circular
-                                               color='red'
-                                               title='Clique aqui para remover este entregador'
-                                               icon>
-                                                   <Icon name='trash' />
-                                           </Button>
+                                            <Button
+                                                inverted
+                                                circular
+                                                color='green'
+                                                title='Clique aqui para editar os dados deste entregador'
+                                                icon>
+                                                    {/* AJUSTE: Link passando o state com o ID para a tela de form-entregador */}
+                                                    <Link to="/form-entregador" state={{ id: entregador.id }} style={{ color: 'green' }}>
+                                                        <Icon name='edit' />
+                                                    </Link>
+                                            </Button> &nbsp;
 
-                                       </Table.Cell>
-                                   </Table.Row>
-                               ))}
+                                            <Button
+                                                inverted
+                                                circular
+                                                color='red'
+                                                title='Clique aqui para remover este entregador'
+                                                icon
+                                                onClick={e => confirmaRemover(entregador.id)}> {/* AJUSTE: Chama a função que abre o Modal */}
+                                                    <Icon name='trash' />
+                                            </Button>
 
-                           </Table.Body>
-                       </Table>
-                   </div>
-               </Container>
-           </div>
+                                        </Table.Cell>
+                                    </Table.Row>
+                                ))}
 
-       </div>
-   )
+                            </Table.Body>
+                        </Table>
+                    </div>
+                </Container>
+            </div>
+
+            {/* NOVO COMPONENTE: Modal de confirmação de exclusão */}
+            <Modal
+                basic
+                onClose={() => setOpenModal(false)}
+                onOpen={() => setOpenModal(true)}
+                open={openModal}
+            >
+                <Header icon>
+                    <Icon name='trash' />
+                    <div style={{marginTop: '5%'}}> Tem certeza que deseja remover esse registro? </div>
+                </Header>
+                <Modal.Actions>
+                    <Button basic color='red' inverted onClick={() => setOpenModal(false)}>
+                        <Icon name='remove' /> Não
+                    </Button>
+                    <Button color='green' inverted onClick={() => remover()}>
+                        <Icon name='checkmark' /> Sim
+                    </Button>
+                </Modal.Actions>
+            </Modal>
+
+        </div>
+    )
 }
