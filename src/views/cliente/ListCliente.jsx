@@ -1,14 +1,27 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Button, Container, Divider, Header, Icon, Modal, Table } from "semantic-ui-react";
+import {
+  Button,
+  Container,
+  Divider,
+  Header,
+  Icon,
+  Modal,
+  Table,
+} from "semantic-ui-react";
 import MenuSistema from "../../MenuSistema";
 
 export default function ListCliente() {
   const [lista, setLista] = useState([]);
 
+  // ESTADOS DO MODAL DE REMOÇÃO
   const [openModal, setOpenModal] = useState(false);
   const [idRemover, setIdRemover] = useState();
+
+  // ESTADOS DO MODAL DE VISUALIZAÇÃO
+  const [openModalVisualizar, setOpenModalVisualizar] = useState(false);
+  const [clienteSelecionado, setClienteSelecionado] = useState({});
 
   useEffect(() => {
     carregarLista();
@@ -19,37 +32,48 @@ export default function ListCliente() {
       setLista(response.data);
     });
   }
+
   function formatarData(dataParam) {
     if (dataParam === null || dataParam === "" || dataParam === undefined) {
       return "";
     }
-
     let arrayData = dataParam.split("-");
     return arrayData[2] + "/" + arrayData[1] + "/" + arrayData[0];
   }
 
+  // --- FUNÇÕES DE REMOÇÃO ---
   function confirmaRemover(id) {
     setOpenModal(true);
     setIdRemover(id);
   }
+
   async function remover() {
+    await axios
+      .delete("http://localhost:8080/api/cliente/" + idRemover)
+      .then((response) => {
+        console.log("Cliente removido com sucesso.");
+        axios.get("http://localhost:8080/api/cliente").then((response) => {
+          setLista(response.data);
+        });
+      })
+      .catch((error) => {
+        console.log("Erro ao remover um cliente.");
+      });
+    setOpenModal(false);
+  }
 
-       await axios.delete('http://localhost:8080/api/cliente/' + idRemover)
-       .then((response) => {
- 
-           console.log('Cliente removido com sucesso.')
- 
-           axios.get("http://localhost:8080/api/cliente")
-           .then((response) => {
-               setLista(response.data)
-           })
-       })
-       .catch((error) => {
-           console.log('Erro ao remover um cliente.')
-       })
-       setOpenModal(false)
-   }
-
+  // FUNÇÃO DE BUSCA PARA VISUALIZAÇÃO
+  function visualizarDetalhes(id) {
+    axios
+      .get("http://localhost:8080/api/cliente/" + id)
+      .then((response) => {
+        setClienteSelecionado(response.data); // Salva os dados completos do cliente
+        setOpenModalVisualizar(true); // Abre o modal
+      })
+      .catch((error) => {
+        console.log("Erro ao buscar os detalhes do cliente.");
+      });
+  }
 
   return (
     <div>
@@ -96,6 +120,17 @@ export default function ListCliente() {
                     <Table.Cell>{cliente.foneCelular}</Table.Cell>
                     <Table.Cell>{cliente.foneFixo}</Table.Cell>
                     <Table.Cell textAlign="center">
+                      {/*BOTÃO DE VISUALIZAÇÃO NA TABELA */}
+                      <Button
+                        circular
+                        color="blue"
+                        title="Clique aqui para visualizar os detalhes deste cliente"
+                        icon
+                        onClick={() => visualizarDetalhes(cliente.id)}
+                      >
+                        <Icon name="eye" />
+                      </Button>{" "}
+                      &nbsp;
                       <Button
                         inverted
                         circular
@@ -108,8 +143,7 @@ export default function ListCliente() {
                           state={{ id: cliente.id }}
                           style={{ color: "green" }}
                         >
-                          {" "}
-                          <Icon name="edit" />{" "}
+                          <Icon name="edit" />
                         </Link>
                       </Button>{" "}
                       &nbsp;
@@ -131,26 +165,75 @@ export default function ListCliente() {
           </div>
         </Container>
       </div>
-      <Modal
-               basic
-               onClose={() => setOpenModal(false)}
-               onOpen={() => setOpenModal(true)}
-               open={openModal}
-         >
-               <Header icon>
-                   <Icon name='trash' />
-                   <div style={{marginTop: '5%'}}> Tem certeza que deseja remover esse registro? </div>
-               </Header>
-               <Modal.Actions>
-                   <Button basic color='red' inverted onClick={() => setOpenModal(false)}>
-                       <Icon name='remove' /> Não
-                   </Button>
-                   <Button color='green' inverted onClick={() => remover()}>
-                       <Icon name='checkmark' /> Sim
-                   </Button>
-               </Modal.Actions>
-         </Modal>
 
+      {/* MODAL DE REMOÇÃO */}
+      <Modal
+        basic
+        onClose={() => setOpenModal(false)}
+        onOpen={() => setOpenModal(true)}
+        open={openModal}
+      >
+        <Header icon>
+          <Icon name="trash" />
+          <div style={{ marginTop: "5%" }}>
+            {" "}
+            Tem certeza que deseja remover esse registro?{" "}
+          </div>
+        </Header>
+        <Modal.Actions>
+          <Button
+            basic
+            color="red"
+            inverted
+            onClick={() => setOpenModal(false)}
+          >
+            <Icon name="remove" /> Não
+          </Button>
+          <Button color="green" inverted onClick={() => remover()}>
+            <Icon name="checkmark" /> Sim
+          </Button>
+        </Modal.Actions>
+      </Modal>
+
+      {/* MODAL DE VISUALIZAÇÃO (Apresentação dos dados) */}
+      <Modal
+        size="small"
+        open={openModalVisualizar}
+        onClose={() => setOpenModalVisualizar(false)}
+      >
+        <Modal.Header>
+          <Icon name="address card outline" /> Detalhes do Cliente
+        </Modal.Header>
+        <Modal.Content>
+          <div style={{ fontSize: "1.1em", lineHeight: "1.6" }}>
+            <p>
+              <strong>ID no Banco:</strong> {clienteSelecionado.id}
+            </p>
+            <p>
+              <strong>Nome Completo:</strong> {clienteSelecionado.nome}
+            </p>
+            <p>
+              <strong>CPF:</strong> {clienteSelecionado.cpf}
+            </p>
+            {/* Reutilizando a função formatarData ficar padronizado */}
+            <p>
+              <strong>Data de Nascimento:</strong>{" "}
+              {formatarData(clienteSelecionado.dataNascimento)}
+            </p>
+            <p>
+              <strong>Fone Celular:</strong> {clienteSelecionado.foneCelular}
+            </p>
+            <p>
+              <strong>Fone Fixo:</strong> {clienteSelecionado.foneFixo}
+            </p>
+          </div>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button color="blue" onClick={() => setOpenModalVisualizar(false)}>
+            Fechar
+          </Button>
+        </Modal.Actions>
+      </Modal>
     </div>
   );
 }
