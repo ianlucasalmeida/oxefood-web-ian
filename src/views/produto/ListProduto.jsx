@@ -9,9 +9,13 @@ export default function ListProduto () {
 
     const [lista, setLista] = useState([]);
     
-    // NOVOS ESTADOS: Para controlar o modal de exclusão
+    // ESTADOS: Para controlar o modal de exclusão
     const [openModal, setOpenModal] = useState(false);
     const [idRemover, setIdRemover] = useState();
+
+    // PASSO 1: ESTADOS: Para controlar o modal de visualização
+    const [openModalVisualizar, setOpenModalVisualizar] = useState(false);
+    const [produtoSelecionado, setProdutoSelecionado] = useState({});
 
     useEffect(() => {
         carregarLista();
@@ -32,19 +36,16 @@ export default function ListProduto () {
         return arrayData[2] + '/' + arrayData[1] + '/' + arrayData[0];
     }
 
-    // NOVA FUNÇÃO: Abre o modal e guarda qual ID será removido
+    // --- FUNÇÕES DE REMOÇÃO ---
     function confirmaRemover(id) {
         setOpenModal(true);
         setIdRemover(id);
     }
 
-    // NOVA FUNÇÃO: Faz a requisição DELETE para o back-end
     async function remover() {
         await axios.delete('http://localhost:8080/api/produto/' + idRemover)
         .then((response) => {
             console.log('Produto removido com sucesso.')
-  
-            // Após remover, recarrega a lista para sumir da tela
             axios.get("http://localhost:8080/api/produto")
             .then((response) => {
                 setLista(response.data)
@@ -53,7 +54,20 @@ export default function ListProduto () {
         .catch((error) => {
             console.log('Erro ao remover um produto.')
         })
-        setOpenModal(false) // Fecha o modal após o processo
+        setOpenModal(false) 
+    }
+
+    // PASSO 2: FUNÇÃO DE BUSCA PARA VISUALIZAÇÃO
+    function visualizarDetalhes(id) {
+        axios.get("http://localhost:8080/api/produto/" + id)
+        .then((response) => {
+            setProdutoSelecionado(response.data);
+            setOpenModalVisualizar(true);
+        })
+        .catch((error) => {
+            console.log('Erro ao buscar os detalhes do produto.');
+            alert('Erro ao buscar os detalhes do produto.');
+        })
     }
 
     return(
@@ -103,13 +117,23 @@ export default function ListProduto () {
                                         <Table.Cell>{produto.tempoEntregaMinimo} a {produto.tempoEntregaMaximo} min</Table.Cell>
                                         <Table.Cell textAlign='center'>
 
+                                            {/* PASSO 3: BOTÃO DE VISUALIZAÇÃO (Azul Sólido) */}
+                                            <Button
+                                                circular
+                                                color='blue'
+                                                title='Clique aqui para visualizar os detalhes deste produto'
+                                                icon
+                                                onClick={() => visualizarDetalhes(produto.id)}
+                                            >
+                                                <Icon name='eye' />
+                                            </Button> &nbsp;
+
                                             <Button
                                                 inverted
                                                 circular
                                                 color='green'
                                                 title='Clique aqui para editar os dados deste produto'
                                                 icon>
-                                                    {/* AJUSTE: Link passando o state com o ID para a tela de form */}
                                                     <Link to="/form-produto" state={{ id: produto.id }} style={{ color: 'green' }}>
                                                         <Icon name='edit' />
                                                     </Link>
@@ -121,7 +145,7 @@ export default function ListProduto () {
                                                 color='red'
                                                 title='Clique aqui para remover este produto'
                                                 icon
-                                                onClick={e => confirmaRemover(produto.id)}> {/* AJUSTE: Chama o Modal */}
+                                                onClick={e => confirmaRemover(produto.id)}> 
                                                     <Icon name='trash' />
                                             </Button>
 
@@ -135,7 +159,7 @@ export default function ListProduto () {
                 </Container>
             </div>
 
-            {/* NOVO COMPONENTE: Modal de confirmação de exclusão */}
+            {/* MODAL DE REMOÇÃO */}
             <Modal
                 basic
                 onClose={() => setOpenModal(false)}
@@ -152,6 +176,34 @@ export default function ListProduto () {
                     </Button>
                     <Button color='green' inverted onClick={() => remover()}>
                         <Icon name='checkmark' /> Sim
+                    </Button>
+                </Modal.Actions>
+            </Modal>
+
+            {/* PASSO 4: MODAL DE VISUALIZAÇÃO */}
+            <Modal
+                size='small'
+                open={openModalVisualizar}
+                onClose={() => setOpenModalVisualizar(false)}
+            >
+                <Modal.Header>
+                    <Icon name='box' /> Detalhes do Produto
+                </Modal.Header>
+                <Modal.Content>
+                    <div style={{ fontSize: '1.1em', lineHeight: '1.6' }}>
+                        <p><strong>ID no Banco:</strong> {produtoSelecionado.id}</p>
+                        <p><strong>Código do Produto:</strong> {produtoSelecionado.codigo}</p>
+                        <p><strong>Título:</strong> {produtoSelecionado.titulo}</p>
+                        <Divider />
+                        <p><strong>Descrição:</strong> {produtoSelecionado.descricao}</p>
+                        <Divider />
+                        <p><strong>Valor Unitário:</strong> R$ {produtoSelecionado.valor}</p>
+                        <p><strong>Tempo de Entrega:</strong> De {produtoSelecionado.tempoEntregaMinimo} até {produtoSelecionado.tempoEntregaMaximo} minutos</p>
+                    </div>
+                </Modal.Content>
+                <Modal.Actions>
+                    <Button color='blue' onClick={() => setOpenModalVisualizar(false)}>
+                        Fechar
                     </Button>
                 </Modal.Actions>
             </Modal>
