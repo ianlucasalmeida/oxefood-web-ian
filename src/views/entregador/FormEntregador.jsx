@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom"; // <-- Importando o Link e useLocation
 import { Button, Container, Divider, Form, Icon } from 'semantic-ui-react';
 import MenuSistema from "../../MenuSistema";
+import { notifyError, notifySuccess } from '../../views/util/Util';
 
 const ufOptions = [
     { key: 'ac', text: 'Acre', value: 'AC' },
@@ -130,12 +131,12 @@ export default function FormEntregador() {
         } else {
             axios.post("http://localhost:8080/api/entregador", entregadorRequest)
             .then((response) => {
-                 console.log('Entregador cadastrado com sucesso.')
-                 alert('Entregador cadastrado com sucesso!');
+                 notifySuccess('Cliente cadastrado com sucesso.')
+                 
             })
             .catch((error) => {
-                 console.log('Erro ao incluir o entregador.')
-                 alert('Erro ao cadastrar o entregador. Verifique o console.');
+                 
+                 notifyError(error.response.data.message);
             });
         }
     }
