@@ -37,6 +37,19 @@ export default function MenuSistema(props) {
             as={Link}
             to="/list-livros"
          />
+          <Menu.Item
+            content="Carro"
+            active={props.tela === "carro"}
+            as={Link}
+            to="/list-carro"
+          />
+          <Menu.Item
+              content="Promoção"
+              active={props.tela ==="promoção"}
+              as={Link}
+              to="/list-promocao"
+          />
+
       </Menu>
     </>
   );
