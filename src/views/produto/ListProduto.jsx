@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-// IMPORTANTE: Adicionamos Header e Modal nas importações do Semantic UI
 import { Button, Container, Divider, Header, Icon, Modal, Table } from 'semantic-ui-react';
 import MenuSistema from '../../MenuSistema';
 
@@ -13,7 +12,7 @@ export default function ListProduto () {
     const [openModal, setOpenModal] = useState(false);
     const [idRemover, setIdRemover] = useState();
 
-    // PASSO 1: ESTADOS: Para controlar o modal de visualização
+    // ESTADOS: Para controlar o modal de visualização
     const [openModalVisualizar, setOpenModalVisualizar] = useState(false);
     const [produtoSelecionado, setProdutoSelecionado] = useState({});
 
@@ -57,7 +56,7 @@ export default function ListProduto () {
         setOpenModal(false) 
     }
 
-    // PASSO 2: FUNÇÃO DE BUSCA PARA VISUALIZAÇÃO
+    // FUNÇÃO DE BUSCA PARA VISUALIZAÇÃO
     function visualizarDetalhes(id) {
         axios.get("http://localhost:8080/api/produto/" + id)
         .then((response) => {
@@ -97,6 +96,8 @@ export default function ListProduto () {
                             <Table.Header>
                                 <Table.Row>
                                     <Table.HeaderCell>Código</Table.HeaderCell>
+                                    {/* === NOVA COLUNA DE CATEGORIA === */}
+                                    <Table.HeaderCell>Categoria</Table.HeaderCell>
                                     <Table.HeaderCell>Título</Table.HeaderCell>
                                     <Table.HeaderCell>Descrição</Table.HeaderCell>
                                     <Table.HeaderCell>Valor</Table.HeaderCell>
@@ -111,13 +112,17 @@ export default function ListProduto () {
 
                                     <Table.Row key={produto.id}>
                                         <Table.Cell>{produto.codigo}</Table.Cell>
+                                        
+                                        {/* === EXIBINDO A DESCRIÇÃO DA CATEGORIA === */}
+                                        {/* O uso do "?." previne erros caso a categoria venha nula do back-end */}
+                                        <Table.Cell>{produto.categoria?.descricao}</Table.Cell>
+                                        
                                         <Table.Cell>{produto.titulo}</Table.Cell>
                                         <Table.Cell>{produto.descricao}</Table.Cell>
                                         <Table.Cell>R$ {produto.valor}</Table.Cell>
                                         <Table.Cell>{produto.tempoEntregaMinimo} a {produto.tempoEntregaMaximo} min</Table.Cell>
                                         <Table.Cell textAlign='center'>
 
-                                            {/* PASSO 3: BOTÃO DE VISUALIZAÇÃO (Azul Sólido) */}
                                             <Button
                                                 circular
                                                 color='blue'
@@ -180,7 +185,7 @@ export default function ListProduto () {
                 </Modal.Actions>
             </Modal>
 
-            {/* PASSO 4: MODAL DE VISUALIZAÇÃO */}
+            {/* MODAL DE VISUALIZAÇÃO */}
             <Modal
                 size='small'
                 open={openModalVisualizar}
@@ -193,6 +198,10 @@ export default function ListProduto () {
                     <div style={{ fontSize: '1.1em', lineHeight: '1.6' }}>
                         <p><strong>ID no Banco:</strong> {produtoSelecionado.id}</p>
                         <p><strong>Código do Produto:</strong> {produtoSelecionado.codigo}</p>
+                        
+                        {/* === CATEGORIA NO MODAL === */}
+                        <p><strong>Categoria:</strong> {produtoSelecionado.categoria?.descricao}</p>
+                        
                         <p><strong>Título:</strong> {produtoSelecionado.titulo}</p>
                         <Divider />
                         <p><strong>Descrição:</strong> {produtoSelecionado.descricao}</p>

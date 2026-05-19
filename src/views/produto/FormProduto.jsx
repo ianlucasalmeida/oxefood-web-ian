@@ -1,7 +1,7 @@
 import axios from "axios";
 import InputMask from 'comigo-tech-react-input-mask';
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom"; // Importação do useLocation e Link
+import { Link, useLocation } from "react-router-dom"; 
 import { Button, Container, Divider, Form, Icon, TextArea } from 'semantic-ui-react';
 import MenuSistema from '../../MenuSistema';
 import { notifyError, notifySuccess } from '../../views/util/Util';
@@ -15,11 +15,22 @@ export default function FormProduto () {
     const [tempoEntregaMinimo, setTempoEntregaMinimo] = useState('');
     const [tempoEntregaMaximo, setTempoEntregaMaximo] = useState('');
 
-    // NOVOS ESTADOS PARA EDIÇÃO
+    // === NOVOS ESTADOS PARA A CATEGORIA ===
+    const [listaCategoria, setListaCategoria] = useState([]);
+    const [idCategoria, setIdCategoria] = useState();
+
     const { state } = useLocation();
     const [idProduto, setIdProduto] = useState();
 
-    // NOVO: useEffect para buscar os dados caso seja uma alteração
+    // === NOVO: useEffect para buscar a lista de categorias no Back-end ===
+    useEffect(() => {
+        axios.get("http://localhost:8080/api/categoriaproduto")
+        .then((response) => {
+            setListaCategoria(response.data);
+        })
+    }, []);
+
+    // useEffect para buscar os dados caso seja uma alteração
     useEffect(() => {
         if (state != null && state.id != null) {
             axios.get("http://localhost:8080/api/produto/" + state.id)
@@ -31,15 +42,21 @@ export default function FormProduto () {
                 setValorUnitario(response.data.valor);
                 setTempoEntregaMinimo(response.data.tempoEntregaMinimo);
                 setTempoEntregaMaximo(response.data.tempoEntregaMaximo);
+                
+                // Preenche o Dropdown com a categoria que já estava salva no produto
+                if (response.data.categoria != null) {
+                    setIdCategoria(response.data.categoria.id);
+                }
             })
         }
     }, [state]);
 
     function salvar() {
-        // Tratamento da vírgula (convertendo para String antes para evitar erros caso venha do backend como Number)
         let valorComPonto = String(valorUnitario).replace(',', '.');
 
         let produtoRequest = {
+            // === ENVIANDO O ID DA CATEGORIA PARA O BACK-END ===
+            idCategoria: idCategoria,
             titulo: titulo,
             codigo: codigo,
             descricao: descricao,
@@ -48,26 +65,21 @@ export default function FormProduto () {
             tempoEntregaMaximo: tempoEntregaMaximo
         }
     
-        // LÓGICA DE DECISÃO: Alterar (PUT) ou Cadastrar (POST)
         if (idProduto != null) { // Alteração
             axios.put("http://localhost:8080/api/produto/" + idProduto, produtoRequest)
             .then((response) => {
-                
                 notifySuccess('Produto alterado com sucesso!');
             })
             .catch((error) => {
-                
                 notifyError(error.response.data.message);
             });
 
         } else { // Cadastro
             axios.post("http://localhost:8080/api/produto", produtoRequest)
             .then((response) => {
-                
                 notifySuccess('Produto cadastrado com sucesso!');
             })
             .catch((error) => {
-                
                 notifyError(error.response.data.message);
             });
         }
@@ -79,7 +91,6 @@ export default function FormProduto () {
             <div style={{marginTop: '3%'}}>
                 <Container textAlign='justified' >
 
-                    {/* CABEÇALHOS DINÂMICOS */}
                     {idProduto === undefined && (
                         <h2> 
                             <span style={{ color: "darkgray" }}> Produto &nbsp;<Icon name="angle double right" size="small" /> </span> 
@@ -101,6 +112,18 @@ export default function FormProduto () {
                                 <Form.Input required fluid label='Código do Produto'>
                                     <InputMask required value={codigo} onChange={e => setCodigo(e.target.value)} /> 
                                 </Form.Input>
+                                
+                                {/* === NOVO COMPONENTE: Menu de Seleção de Categorias === */}
+                                <Form.Select
+                                    required
+                                    fluid
+                                    tabIndex='3'
+                                    placeholder='Selecione'
+                                    label='Categoria'
+                                    options={listaCategoria.map((c) => ({ key: c.id, text: c.descricao, value: c.id }))}
+                                    value={idCategoria}
+                                    onChange={(e, { value }) => { setIdCategoria(value) }}
+                                />
                             </Form.Group>
 
                             <Form.Group widths='equal'>
@@ -123,7 +146,6 @@ export default function FormProduto () {
                         </Form>
                         
                         <div style={{marginTop: '4%'}}>
-                            {/* BOTÃO VOLTAR COM LINK DINÂMICO */}
                             <Link to={"/list-produto"}>
                                 <Button type="button" inverted circular icon labelPosition='left' color='orange'>
                                     <Icon name='reply' />

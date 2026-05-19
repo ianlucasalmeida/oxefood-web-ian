@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Menu } from "semantic-ui-react";
+import { Dropdown } from "semantic-ui-react";
 
 export default function MenuSistema(props) {
   return (
@@ -31,25 +32,27 @@ export default function MenuSistema(props) {
           to="/list-entregador"
         />
 
-         <Menu.Item
-            content="Livros"
-            active={props.tela === "livros"}
-            as={Link}
-            to="/list-livros"
-         />
-          <Menu.Item
-            content="Carro"
-            active={props.tela === "carro"}
-            as={Link}
-            to="/list-carro"
-          />
-          <Menu.Item
-              content="Promoção"
-              active={props.tela ==="promoção"}
-              as={Link}
-              to="/list-promocao"
-          />
-
+        <Menu.Item
+          content="Livros"
+          active={props.tela === "livros"}
+          as={Link}
+          to="/list-livros"
+        />
+        <Menu.Item
+          content="Carro"
+          active={props.tela === "carro"}
+          as={Link}
+          to="/list-carro"
+        />
+        <Menu.Item
+          content="Promoção"
+          active={props.tela === "promoção"}
+          as={Link}
+          to="/list-promocao"
+        />
+        <Dropdown.Item as={Link} to="/list-categoria-produto">
+          Categoria de Produto
+        </Dropdown.Item>
       </Menu>
     </>
   );
