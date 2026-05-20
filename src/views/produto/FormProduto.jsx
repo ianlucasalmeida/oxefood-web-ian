@@ -1,6 +1,6 @@
 import axios from "axios";
 import InputMask from 'comigo-tech-react-input-mask';
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom"; 
 import { Button, Container, Divider, Form, Icon, TextArea } from 'semantic-ui-react';
 import MenuSistema from '../../MenuSistema';
@@ -15,14 +15,12 @@ export default function FormProduto () {
     const [tempoEntregaMinimo, setTempoEntregaMinimo] = useState('');
     const [tempoEntregaMaximo, setTempoEntregaMaximo] = useState('');
 
-    // === NOVOS ESTADOS PARA A CATEGORIA ===
     const [listaCategoria, setListaCategoria] = useState([]);
     const [idCategoria, setIdCategoria] = useState();
 
     const { state } = useLocation();
     const [idProduto, setIdProduto] = useState();
 
-    // === NOVO: useEffect para buscar a lista de categorias no Back-end ===
     useEffect(() => {
         axios.get("http://localhost:8080/api/categoriaproduto")
         .then((response) => {
@@ -30,7 +28,6 @@ export default function FormProduto () {
         })
     }, []);
 
-    // useEffect para buscar os dados caso seja uma alteração
     useEffect(() => {
         if (state != null && state.id != null) {
             axios.get("http://localhost:8080/api/produto/" + state.id)
@@ -43,7 +40,6 @@ export default function FormProduto () {
                 setTempoEntregaMinimo(response.data.tempoEntregaMinimo);
                 setTempoEntregaMaximo(response.data.tempoEntregaMaximo);
                 
-                // Preenche o Dropdown com a categoria que já estava salva no produto
                 if (response.data.categoria != null) {
                     setIdCategoria(response.data.categoria.id);
                 }
@@ -55,7 +51,6 @@ export default function FormProduto () {
         let valorComPonto = String(valorUnitario).replace(',', '.');
 
         let produtoRequest = {
-            // === ENVIANDO O ID DA CATEGORIA PARA O BACK-END ===
             idCategoria: idCategoria,
             titulo: titulo,
             codigo: codigo,
@@ -65,7 +60,7 @@ export default function FormProduto () {
             tempoEntregaMaximo: tempoEntregaMaximo
         }
     
-        if (idProduto != null) { // Alteração
+        if (idProduto != null) { 
             axios.put("http://localhost:8080/api/produto/" + idProduto, produtoRequest)
             .then((response) => {
                 notifySuccess('Produto alterado com sucesso!');
@@ -74,7 +69,7 @@ export default function FormProduto () {
                 notifyError(error.response.data.message);
             });
 
-        } else { // Cadastro
+        } else { 
             axios.post("http://localhost:8080/api/produto", produtoRequest)
             .then((response) => {
                 notifySuccess('Produto cadastrado com sucesso!');
@@ -113,7 +108,6 @@ export default function FormProduto () {
                                     <InputMask required value={codigo} onChange={e => setCodigo(e.target.value)} /> 
                                 </Form.Input>
                                 
-                                {/* === NOVO COMPONENTE: Menu de Seleção de Categorias === */}
                                 <Form.Select
                                     required
                                     fluid

@@ -15,12 +15,23 @@ import FormPromocao from "./views/promocao/FormPromocao";
 import ListPromocao from "./views/promocao/ListPromocao";
 import FormCategoriaProduto from "./views/categoriaProduto/FormCategoriaProduto";
 import ListCategoriaProduto from "./views/categoriaProduto/ListCategoriaProduto";
+import Login from './views/login/Login';
+
+// Importações das novas telas de Pedido
+import FormPedido from "./views/pedido/FormPedido";
+import ListPedido from "./views/pedido/ListPedido";
 
 function Rotas() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Home />} />
+        {/* A porta de entrada do sistema agora é o Login */}
+        <Route path="/" element={<Login />} />
+        
+        {/* A Home passa a ser uma rota interna */}
+        <Route path="/home" element={<Home />} />
+        
+        {/* Restante das rotas do sistema */}
         <Route path="list-cliente" element={<ListCliente />} />
         <Route path="form-cliente" element={<FormCliente />} />
         <Route path="list-produto" element={<ListProduto />} />
@@ -33,14 +44,12 @@ function Rotas() {
         <Route path="form-carro" element={<FormCarro />} />
         <Route path="form-promocao" element={<FormPromocao />} />
         <Route path="list-promocao" element={<ListPromocao />} />
-        <Route
-          path="/list-categoria-produto"
-          element={<ListCategoriaProduto />}
-        />
-        <Route
-          path="/form-categoria-produto"
-          element={<FormCategoriaProduto />}
-        />
+        <Route path="/list-categoria-produto" element={<ListCategoriaProduto />} />
+        <Route path="/form-categoria-produto" element={<FormCategoriaProduto />} />
+        
+        {/* Novas rotas de Pedido */}
+        <Route path="/form-pedido" element={<FormPedido />} />
+        <Route path="/list-pedido" element={<ListPedido />} />
       </Routes>
     </>
   );

@@ -1,8 +1,17 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Menu } from "semantic-ui-react";
-import { Dropdown } from "semantic-ui-react";
 
 export default function MenuSistema(props) {
+  
+  const navigate = useNavigate();
+
+  function logout() {
+    // Limpa o token do cofre do navegador
+    localStorage.removeItem("token");
+    // Redireciona o utilizador de volta para a porta trancada (Login)
+    navigate("/");
+  }
+
   return (
     <>
       <Menu inverted>
@@ -10,7 +19,7 @@ export default function MenuSistema(props) {
           content="Home"
           active={props.tela === "home"}
           as={Link}
-          to="/"
+          to="/home"
         />
         <Menu.Item
           content="Cliente"
@@ -24,14 +33,25 @@ export default function MenuSistema(props) {
           as={Link}
           to="/list-produto"
         />
-
+        <Menu.Item
+          content="Categoria de Produto"
+          active={props.tela === "categoria"}
+          as={Link}
+          to="/list-categoria-produto"
+        />
+        {/* --- NOVA OPÇÃO DE PEDIDOS --- */}
+        <Menu.Item
+          content="Pedidos"
+          active={props.tela === "pedido"}
+          as={Link}
+          to="/list-pedido"
+        />
         <Menu.Item
           content="Entregador"
           active={props.tela === "entregador"}
           as={Link}
           to="/list-entregador"
         />
-
         <Menu.Item
           content="Livros"
           active={props.tela === "livros"}
@@ -50,9 +70,16 @@ export default function MenuSistema(props) {
           as={Link}
           to="/list-promocao"
         />
-        <Dropdown.Item as={Link} to="/list-categoria-produto">
-          Categoria de Produto
-        </Dropdown.Item>
+
+        {/* --- BOTÃO DE SAÍDA ALINHADO À DIREITA --- */}
+        <Menu.Menu position="right">
+          <Menu.Item
+            name="Sair"
+            icon="sign-out"
+            onClick={logout}
+            style={{ fontWeight: "bold", color: "red" }}
+          />
+        </Menu.Menu>
       </Menu>
     </>
   );
