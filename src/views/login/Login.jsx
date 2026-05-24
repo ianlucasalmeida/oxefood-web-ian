@@ -1,40 +1,51 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Form, Grid, Header, Message, Segment } from 'semantic-ui-react';
+import { isUserLoggedIn, registerSuccessfulLoginForJwt } from '../util/AuthenticationService';
 
 export default function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [erro, setErro] = useState('');
-    
-    // Hook do React Router para redirecionar o utilizador após o login
     const navigate = useNavigate();
 
-    function efetuarLogin() {
-        setErro(''); // Limpa erros anteriores
+    // Redireciona automaticamente se o usuário já estiver logado
+    useEffect(() => {
+        if (isUserLoggedIn()) {
+            navigate('/home');
+        }
+    }, [navigate]);
 
-        let authRequest = {
+    function efetuarLogin() {
+        setErro('');
+
+        const authRequest = {
             username: username,
             password: password
         };
 
         axios.post('http://localhost:8080/api/login', authRequest)
-        .then((response) => {
-            // Se o login for bem sucedido, o back-end devolve o Token JWT
-            const tokenJwt = response.data.token;
-            
-            // Salvamos esse token no "cofre" do navegador (localStorage)
-            localStorage.setItem('token', tokenJwt);
-            
-            // Redirecionamos o utilizador para a tela inicial do sistema (ex: lista de produtos)
-            navigate('/list-produto'); 
-        })
-        .catch((error) => {
-            // Se as credenciais estiverem erradas (403 Forbidden), exibimos a mensagem
-            setErro('E-mail ou senha incorretos. Tente novamente.');
-            console.error('Erro de autenticação:', error);
-        });
+            .then((response) => {
+                // Ajuste conforme o formato do seu JSON de resposta (ex: response.data.token)
+                const tokenJwt = response.data.token || response.data;
+                
+                if (tokenJwt) {
+                    // Utiliza o método do serviço para registrar o login corretamente
+                    registerSuccessfulLoginForJwt(tokenJwt, new Date().getTime() + 3600000);
+                    navigate('/home');
+                } else {
+                    setErro('Erro ao processar o token recebido.');
+                }
+            })
+            .catch((error) => {
+                console.error('Erro de autenticação:', error);
+                if (error.code === 'ERR_NETWORK') {
+                    setErro('Servidor não encontrado. Verifique se o Spring Boot está rodando.');
+                } else {
+                    setErro('E-mail ou senha incorretos.');
+                }
+            });
     }
 
     return (
@@ -49,7 +60,7 @@ export default function Login() {
                             fluid 
                             icon='user' 
                             iconPosition='left' 
-                            placeholder='E-mail (ex: admin@oxefood.com)' 
+                            placeholder='E-mail' 
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                         />
@@ -63,7 +74,8 @@ export default function Login() {
                             onChange={(e) => setPassword(e.target.value)}
                         />
 
-                        <Button color='orange' fluid size='large' onClick={() => efetuarLogin()}>
+                        {/* type="button" previne o reload do formulário */}
+                        <Button color='orange' fluid size='large' type='button' onClick={efetuarLogin}>
                             Entrar
                         </Button>
                     </Segment>

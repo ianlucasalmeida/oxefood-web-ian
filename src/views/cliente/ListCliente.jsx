@@ -52,9 +52,7 @@ export default function ListCliente() {
       .delete("http://localhost:8080/api/cliente/" + idRemover)
       .then((response) => {
         console.log("Cliente removido com sucesso.");
-        axios.get("http://localhost:8080/api/cliente").then((response) => {
-          setLista(response.data);
-        });
+        carregarLista(); // Chama a função para recarregar a lista limpa
       })
       .catch((error) => {
         console.log("Erro ao remover um cliente.");
@@ -67,8 +65,8 @@ export default function ListCliente() {
     axios
       .get("http://localhost:8080/api/cliente/" + id)
       .then((response) => {
-        setClienteSelecionado(response.data); // Salva os dados completos do cliente
-        setOpenModalVisualizar(true); // Abre o modal
+        setClienteSelecionado(response.data); 
+        setOpenModalVisualizar(true); 
       })
       .catch((error) => {
         console.log("Erro ao buscar os detalhes do cliente.");
@@ -120,7 +118,6 @@ export default function ListCliente() {
                     <Table.Cell>{cliente.foneCelular}</Table.Cell>
                     <Table.Cell>{cliente.foneFixo}</Table.Cell>
                     <Table.Cell textAlign="center">
-                      {/*BOTÃO DE VISUALIZAÇÃO NA TABELA */}
                       <Button
                         circular
                         color="blue"
@@ -153,7 +150,7 @@ export default function ListCliente() {
                         color="red"
                         title="Clique aqui para remover este cliente"
                         icon
-                        onClick={(e) => confirmaRemover(cliente.id)}
+                        onClick={() => confirmaRemover(cliente.id)}
                       >
                         <Icon name="trash" />
                       </Button>
@@ -195,9 +192,9 @@ export default function ListCliente() {
         </Modal.Actions>
       </Modal>
 
-      {/* MODAL DE VISUALIZAÇÃO (Apresentação dos dados) */}
+      {/* MODAL DE VISUALIZAÇÃO (Apresentação dos dados e endereços) */}
       <Modal
-        size="small"
+        size="large"
         open={openModalVisualizar}
         onClose={() => setOpenModalVisualizar(false)}
       >
@@ -215,7 +212,6 @@ export default function ListCliente() {
             <p>
               <strong>CPF:</strong> {clienteSelecionado.cpf}
             </p>
-            {/* Reutilizando a função formatarData ficar padronizado */}
             <p>
               <strong>Data de Nascimento:</strong>{" "}
               {formatarData(clienteSelecionado.dataNascimento)}
@@ -226,6 +222,38 @@ export default function ListCliente() {
             <p>
               <strong>Fone Fixo:</strong> {clienteSelecionado.foneFixo}
             </p>
+
+            {/* Renderiza a tabela de endereços apenas se houver endereços cadastrados */}
+            {clienteSelecionado.enderecos && clienteSelecionado.enderecos.length > 0 && (
+                <div style={{ marginTop: "2%" }}>
+                    <Divider />
+                    <Header as='h4'><Icon name='map marker alternate' /> Endereços Cadastrados</Header>
+                    <Table color='green' size='small' celled compact>
+                        <Table.Header>
+                            <Table.Row>
+                                <Table.HeaderCell>Rua</Table.HeaderCell>
+                                <Table.HeaderCell>Nº</Table.HeaderCell>
+                                <Table.HeaderCell>Bairro</Table.HeaderCell>
+                                <Table.HeaderCell>CEP</Table.HeaderCell>
+                                <Table.HeaderCell>Cidade/UF</Table.HeaderCell>
+                                <Table.HeaderCell>Complemento</Table.HeaderCell>
+                            </Table.Row>
+                        </Table.Header>
+                        <Table.Body>
+                            {clienteSelecionado.enderecos.map((end, index) => (
+                                <Table.Row key={index}>
+                                    <Table.Cell>{end.rua}</Table.Cell>
+                                    <Table.Cell>{end.numero}</Table.Cell>
+                                    <Table.Cell>{end.bairro}</Table.Cell>
+                                    <Table.Cell>{end.cep}</Table.Cell>
+                                    <Table.Cell>{end.cidade} - {end.estado}</Table.Cell>
+                                    <Table.Cell>{end.complemento}</Table.Cell>
+                                </Table.Row>
+                            ))}
+                        </Table.Body>
+                    </Table>
+                </div>
+            )}
           </div>
         </Modal.Content>
         <Modal.Actions>

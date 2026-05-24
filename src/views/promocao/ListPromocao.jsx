@@ -31,7 +31,7 @@ export default function ListPromocao() {
     });
   }
 
-  // Função para garantir que a data apareça como DD/MM/YYYY [cite: 378, 379]
+  // Função para garantir que a data apareça como DD/MM/YYYY
   function formatarData(dataParam) {
     if (dataParam === null || dataParam === "" || dataParam === undefined) {
       return "";
